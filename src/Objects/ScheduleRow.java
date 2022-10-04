@@ -15,6 +15,7 @@ public class ScheduleRow implements Comparable<ScheduleRow>{
         this.room = room;
         this.course= course;
         this.professor = this.course.getProfessor();
+        calcFitness();
     }
 
     public int getFitness() {
@@ -58,7 +59,7 @@ public class ScheduleRow implements Comparable<ScheduleRow>{
     }
 
     private void calcFitness(){
-        fitness = 1;
+
     }
 
     @Override

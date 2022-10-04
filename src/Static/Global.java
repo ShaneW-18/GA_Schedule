@@ -15,8 +15,8 @@ public class Global {
     public static List<Room> ROOM_LIST = new ArrayList<>();
     public static HashMap<Integer, TimePeriod> TIME_PERIOD = new HashMap<>();
     public static List<TimePeriod> TIME_PERIOD_LIST = new ArrayList<>();
-
     public static HashMap<String, Professor> PROFESSORS = new HashMap<>();
+    public static List<Professor> PROFESSORS_LIST = new ArrayList<>();
     public static HashMap<Integer, Course> COURSES = new HashMap<>();
 
     public static List<Course> POPULATION = new ArrayList<>();

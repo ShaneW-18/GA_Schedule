@@ -35,7 +35,7 @@ public class GA {
                 if (check)
                     index++;
             }
-
+            schedule.calculateFitness();
             currentGeneration.add(schedule);
         }
     }

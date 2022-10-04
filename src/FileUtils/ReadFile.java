@@ -24,6 +24,7 @@ public class ReadFile {
                 String[] line = st.split("\\s+");
                 Professor professor = new Professor(Integer.parseInt(line[0]), line[1]);
                 Global.PROFESSORS.put(professor.getName(), professor);
+                Global.PROFESSORS_LIST.add(professor);
             }
         }
         catch(IOException e) {
