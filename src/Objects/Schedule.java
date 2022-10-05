@@ -1,23 +1,21 @@
 package Objects;
 
 import Static.Global;
-import org.w3c.dom.Node;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Schedule {
-    List<ScheduleRow> schedule = new ArrayList<>();
+    List<ScheduleRow> scheduleRows = new ArrayList<>();
     Map<Professor, PriorityQueue<ScheduleRow>> professorMap = new HashMap<>();
     int fitness = 0;
 
     public boolean addClass(ScheduleRow row){
         if(checkForDuplicate(row) && checkDirty(row)){
-            schedule.add(row);
+            scheduleRows.add(row);
             if(professorMap.containsKey(row.getProfessor()))
                 professorMap.get(row.getProfessor()).add(row);
             else {
-                PriorityQueue<ScheduleRow> list = new PriorityQueue<ScheduleRow>(new scheduleComparator());
+                PriorityQueue<ScheduleRow> list = new PriorityQueue<ScheduleRow>(new scheduleRowComparator());
                 list.add(row);
                 professorMap.put(row.getProfessor(), list);
             }
@@ -27,7 +25,7 @@ public class Schedule {
 
     }
     private boolean checkForDuplicate(ScheduleRow row){
-        for (ScheduleRow s : schedule) {
+        for (ScheduleRow s : scheduleRows) {
             if(!s.equals(row))
                 return false;
         }
@@ -40,15 +38,19 @@ public class Schedule {
     }
     public void calculateFitness(){
         for (Professor p: Global.PROFESSORS_LIST) {
+            List<ScheduleRow> professorSchedule = new ArrayList<>();
+            while (!professorMap.get(p).isEmpty()){
+                professorSchedule.add(professorMap.get(p).poll());
+            }
             int classesInRow = 0;
-            int lastTime;
-            for (var l : professorMap.get(p)) {
-                lastTime = l.getTimePeriod().getTimePeriodID();
+            int lastTime = professorSchedule.get(0).getTimePeriod().TimePeriodID;
+            for (var l : professorSchedule) {
                 if(l.getTimePeriod().getTimePeriodID() - lastTime >= 3)
                     fitness -= 15;
                 if(l.getTimePeriod().getTimePeriodID() == lastTime + 1)
                     classesInRow++;
                 fitness -= l.getRoom().size - l.getCourse().getSize();
+                lastTime = l.getTimePeriod().getTimePeriodID();
             }
             if(classesInRow >= 3)
                 fitness -= (classesInRow * 10) - 20;
@@ -64,9 +66,33 @@ public class Schedule {
         }
     }
 
+    public List<ScheduleRow> getScheduleRows() {
+        return scheduleRows;
+    }
+
+    public void setScheduleRows(List<ScheduleRow> scheduleRows) {
+        this.scheduleRows = scheduleRows;
+    }
+
+    public Map<Professor, PriorityQueue<ScheduleRow>> getProfessorMap() {
+        return professorMap;
+    }
+
+    public void setProfessorMap(Map<Professor, PriorityQueue<ScheduleRow>> professorMap) {
+        this.professorMap = professorMap;
+    }
+
+    public int getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(int fitness) {
+        this.fitness = fitness;
+    }
+
     @Override
     public String toString(){
-        return schedule.toString() + "\n__________\n";
+        return scheduleRows.toString() + "\n__________\n";
     }
 
 }

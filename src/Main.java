@@ -24,7 +24,8 @@ public class Main {
 //        var mutationChance = scanner.nextDouble();
 
         GA ga = new GA(5, 5, 5, 5);
-        System.out.println(ga.currentGeneration);
+        System.out.println(ga);
+        ga.createNewGeneration();
 //        Schedule s = new Schedule();
 //        ScheduleRow r = new ScheduleRow(Global.TIME_PERIOD.get(2), Global.ROOMS.get("Biddle123"), Global.COURSES.get(3));
 //        ScheduleRow r1 = new ScheduleRow(Global.TIME_PERIOD.get(2), Global.ROOMS.get("BL138"), Global.COURSES.get(5));
