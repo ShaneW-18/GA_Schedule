@@ -26,7 +26,9 @@ public class Schedule {
     }
     private boolean checkForDuplicate(ScheduleRow row){
         for (ScheduleRow s : scheduleRows) {
-            if(!s.equals(row))
+            if(row.getRoom().equals((s.getRoom())) && row.getTimePeriod().equals(s.getTimePeriod()))
+                return false;
+            if(row.getProfessor().equals(s.getProfessor()) && row.getTimePeriod().equals(s.getTimePeriod()))
                 return false;
         }
         return true;

@@ -67,15 +67,6 @@ public class ScheduleRow implements Comparable<ScheduleRow>{
         return Integer.compare(this.fitness, scheduleRow.fitness);
     }
     @Override
-    public boolean equals(Object o) {
-        var row = (ScheduleRow)o;
-        if(row.getRoom().equals((this.getRoom())) && row.getTimePeriod().equals(this.getTimePeriod()))
-            return false;
-        if(row.getProfessor().equals(this.getProfessor()) && row.getTimePeriod().equals(this.getTimePeriod()))
-            return false;
-        return true;
-    }
-    @Override
     public String toString(){
         return course + " with " + professor +  ": " + timePeriod + " in " +room + "\n";
     }
