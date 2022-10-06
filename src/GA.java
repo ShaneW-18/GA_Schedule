@@ -26,7 +26,10 @@ public class GA {
         this.POPULATION_SIZE = POPULATION_SIZE;
         this.CROSSOVER_CHANCE = CROSSOVER_CHANCE;
         this.MUTATION_CHANCE = MUTATION_CHANCE;
-        randomPopulation();
+        while(true) {
+            if (randomPopulation())
+                break;
+        }
     }
 
     public void createNewGeneration(){
@@ -36,30 +39,69 @@ public class GA {
             currentGeneration.clear();
             while (currentGeneration.size() != POPULATION_SIZE) {
                 tournament();
-//        if(Math.random() <= MUTATION_CHANCE) {
-//            crossover();
-//        }
-                if (Math.random() <= MUTATION_CHANCE) {
-                    mutation(parent1);
-                    mutation(parent1);
+                if(Math.random() <= CROSSOVER_CHANCE) {
+                    var parents = crossover();
+                    parent1 = parents[0];
+                    parent2 = parents[1];
                 }
+                if (Math.random() <= MUTATION_CHANCE) {
+                    parent1 = mutation(parent1);
+                    parent2 = mutation(parent2);
+                }
+                parent1.calculateFitness();
+                parent2.calculateFitness();
+                currentGeneration.add(parent1);
+                currentGeneration.add(parent2);
             }
         }
 
     }
 
-    private void crossover(){
+    private Schedule[] crossover(){
         Random rand = new Random();
+        Collections.shuffle(parent1.getScheduleRows());
+        Collections.shuffle(parent2.getScheduleRows());
+        var child1 = new Schedule();
+        var child2 = new Schedule();
 
-        int crossoverPoint = rand.nextInt(MAX_GENERATION);
 
-        List<ScheduleRow> firstHalf1 = parent1.getScheduleRows().subList(0, crossoverPoint);
-        List<ScheduleRow> secondHalf1 = parent1.getScheduleRows().subList(crossoverPoint, parent1.getScheduleRows().size() -1);
-        List<ScheduleRow> firstHalf2 = parent2.getScheduleRows().subList(0, crossoverPoint);
-        List<ScheduleRow> secondHalf2 = parent2.getScheduleRows().subList(crossoverPoint, parent2.getScheduleRows().size() -1);
-        System.out.println();
+        var badDataCheck = false;
+        var index = 1;
+        do {
+            badDataCheck = false;
+            int crossoverPoint = rand.nextInt( 1, parent1.getScheduleRows().size() -1);
+            List<ScheduleRow> firstHalf1 = new ArrayList<>(parent1.getScheduleRows().subList(0, crossoverPoint));
+            List<ScheduleRow> secondHalf1 = new ArrayList<>(parent1.getScheduleRows().subList(crossoverPoint, parent1.getScheduleRows().size()));
+            List<ScheduleRow> firstHalf2 = new ArrayList<>(parent2.getScheduleRows().subList(0, crossoverPoint));
+            List<ScheduleRow> secondHalf2 = new ArrayList<>(parent2.getScheduleRows().subList(crossoverPoint, parent2.getScheduleRows().size()));
+
+            for (var f : firstHalf1) {
+                if (!child1.addClass(f))
+                    badDataCheck = true;
+            }
+            for (var f : secondHalf2) {
+                if (!child1.addClass(f))
+                    badDataCheck = true;
+            }
+            for (var f : firstHalf2) {
+                if (!child2.addClass(f))
+                    badDataCheck = true;
+            }
+            for (var f : secondHalf1) {
+                if (!child2.addClass(f))
+                    badDataCheck = true;
+            }
+
+        }while(badDataCheck && index++ != 24);
+        if(badDataCheck){
+            return new Schedule[]{parent1, parent2};
+        }
+        return new Schedule[]{child1, child2};
     }
 
+    private void crossoverCheck(){
+
+    }
     private void tournament(){
         Random rand = new Random();
         var tournament1 = pastGeneration.get(rand.nextInt(0, pastGeneration.size() - 1));
@@ -76,10 +118,11 @@ public class GA {
         }
         parent2 = tournament1.getFitness() > tournament2.getFitness() ? tournament1 : tournament2;
     }
-    private void randomPopulation(){
+    private boolean randomPopulation(){
         Random rand = new Random();
         while(currentGeneration.size() != MAX_GENERATION) {
             int index = 1;
+            var badPop = 0;
             Schedule schedule = new Schedule();
             while (index != Global.COURSES.size() + 1) {
                 var timeRand =rand.nextInt(Global.TIME_PERIOD_LIST.size());
@@ -87,6 +130,9 @@ public class GA {
                 var time = Global.TIME_PERIOD_LIST.get(timeRand);
                 var room = Global.ROOM_LIST.get(roomRand);
                 var check = schedule.addClass(new ScheduleRow(time, room, Global.COURSES.get(index)));
+                badPop++;
+                if(badPop > 500)
+                    return false;
                 if (check) {
                     index++;
                 }
@@ -94,8 +140,9 @@ public class GA {
             schedule.calculateFitness();
             currentGeneration.add(schedule);
         }
+        return true;
     }
-    private ScheduleRow mutation(Schedule schedule) {
+    private Schedule mutation(Schedule schedule) {
         Random rand = new Random();
         var index = rand.nextInt(schedule.getScheduleRows().size());
         //System.out.println("crossover point: "  +index );
@@ -121,7 +168,8 @@ public class GA {
         newScheduleRow.setRoom(room);
         newScheduleRow.setTimePeriod(time);
         //System.out.println("after mutation : "  + newScheduleRow);
-        return newScheduleRow;
+        schedule.getScheduleRows().set(index, newScheduleRow);
+        return schedule;
 
     }
     private Boolean checkRoom(Room room, ScheduleRow row, Schedule schedule){
@@ -171,7 +219,7 @@ public class GA {
         return currentGeneration.toString();
     }
     private void Benchmarks(){
-        max = 0;
+        max = -10000;
         min = 1000;
         for (var s : currentGeneration) {
             if(s.getFitness() > max)
