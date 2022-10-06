@@ -13,6 +13,8 @@ public class GA {
     List<Schedule> pastGeneration = new ArrayList<>();
     PriorityQueue<Schedule> parentSelection = new PriorityQueue<>();
     Schedule parent1,  parent2;
+    int max, min;
+    double avg;
 
     final int MAX_GENERATION;
     final int POPULATION_SIZE;
@@ -28,13 +30,20 @@ public class GA {
     }
 
     public void createNewGeneration(){
-        pastGeneration.addAll(currentGeneration);
-        tournament();
+        for(int i = 0; i<MAX_GENERATION; i++) {
+            Benchmarks();
+            pastGeneration.addAll(currentGeneration);
+            currentGeneration.clear();
+            while (currentGeneration.size() != POPULATION_SIZE) {
+                tournament();
 //        if(Math.random() <= MUTATION_CHANCE) {
 //            crossover();
 //        }
-        if(Math.random() <= MUTATION_CHANCE) {
-            mutation(parent1);
+                if (Math.random() <= MUTATION_CHANCE) {
+                    mutation(parent1);
+                    mutation(parent1);
+                }
+            }
         }
 
     }
@@ -89,12 +98,12 @@ public class GA {
     private ScheduleRow mutation(Schedule schedule) {
         Random rand = new Random();
         var index = rand.nextInt(schedule.getScheduleRows().size());
-        System.out.println("crossover point: "  +index );
+        //System.out.println("crossover point: "  +index );
         TimePeriod time = schedule.getScheduleRows().get(index).getTimePeriod();;
         Room room = schedule.getScheduleRows().get(index).getRoom();;
         ScheduleRow newScheduleRow = schedule.getScheduleRows().get(index);
         List<Room> temp = new ArrayList<Room>(Global.ROOM_LIST);
-        System.out.println("origninal: "  + newScheduleRow);
+       // System.out.println("origninal: "  + newScheduleRow);
         Collections.shuffle(temp);
         for (var r : temp) {
             if (checkRoom(Global.ROOMS.get("Biddle123"), schedule.getScheduleRows().get(index), schedule)) {
@@ -111,7 +120,7 @@ public class GA {
 
         newScheduleRow.setRoom(room);
         newScheduleRow.setTimePeriod(time);
-        System.out.println("after mutation : "  + newScheduleRow);
+        //System.out.println("after mutation : "  + newScheduleRow);
         return newScheduleRow;
 
     }
@@ -161,5 +170,19 @@ public class GA {
     public String toString(){
         return currentGeneration.toString();
     }
+    private void Benchmarks(){
+        max = 0;
+        min = 1000;
+        for (var s : currentGeneration) {
+            if(s.getFitness() > max)
+                max = s.getFitness();
+            if(s.getFitness() < min)
+                min = s.getFitness();
+            avg += s.getFitness();
+        }
+        avg = avg / currentGeneration.size();
+        System.out.println("max: " + max + " min: " + min + " avg: " + avg);
+    }
+
 
 }

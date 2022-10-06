@@ -23,8 +23,7 @@ public class Main {
 //        System.out.println("Enter Mutation Chance in decimal: ");
 //        var mutationChance = scanner.nextDouble();
 
-        GA ga = new GA(5, 5, 5, 5);
-        System.out.println(ga);
+        GA ga = new GA(50, 50, 5, 5);
         ga.createNewGeneration();
 //        Schedule s = new Schedule();
 //        ScheduleRow r = new ScheduleRow(Global.TIME_PERIOD.get(2), Global.ROOMS.get("Biddle123"), Global.COURSES.get(3));
