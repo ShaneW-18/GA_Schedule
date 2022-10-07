@@ -9,7 +9,7 @@ public class Schedule {
     Map<Professor, PriorityQueue<ScheduleRow>> professorMap = new HashMap<>();
     int fitness = 0;
 
-    public boolean addClass(ScheduleRow row){
+    public boolean addClass(ScheduleRow row, boolean set, int i){
         if(checkForDuplicate(row) && checkDirty(row)){
             scheduleRows.add(row);
             if(professorMap.containsKey(row.getProfessor()))
@@ -19,9 +19,28 @@ public class Schedule {
                 list.add(row);
                 professorMap.put(row.getProfessor(), list);
             }
+
             return true;
         }
         return false;
+
+    }
+    public void removeClass(ScheduleRow row){
+        List<ScheduleRow> professorSchedule = new ArrayList<>();
+        while (!professorMap.get(row.getProfessor()).isEmpty()) {
+            professorSchedule.add(professorMap.get(row.getProfessor()).poll());
+        }
+        for(var i = 0; i<professorSchedule.size(); i++){
+            if(Objects.equals(professorSchedule.get(i).getRoom().getRoomID(), row.getRoom().RoomID) && professorSchedule.get(i).getTimePeriod().getTimePeriodID() == row.getTimePeriod().getTimePeriodID()) {
+                professorSchedule.remove(i);
+                break;
+            }
+        }
+        for(var s : professorSchedule){
+            professorMap.get(row.getProfessor()).add(s);
+        }
+
+
 
     }
     private boolean checkForDuplicate(ScheduleRow row){
@@ -39,13 +58,32 @@ public class Schedule {
         return false;
     }
     public void calculateFitness(){
+        fitness = 0;
+
         for (Professor p: Global.PROFESSORS_LIST) {
             List<ScheduleRow> professorSchedule = new ArrayList<>();
-            while (!professorMap.get(p).isEmpty()){
-                professorSchedule.add(professorMap.get(p).poll());
+            try {
+                while (!professorMap.get(p).isEmpty()) {
+                    professorSchedule.add(professorMap.get(p).poll());
+                }
             }
+            catch (Exception e){
+                System.out.println();
+            }
+
+            for(var s : professorSchedule){
+                professorMap.get(p).add(s);
+            }
+
             int classesInRow = 0;
-            int lastTime = professorSchedule.get(0).getTimePeriod().TimePeriodID;
+            int lastTime = 0;
+            try {
+
+                 lastTime = professorSchedule.get(0).getTimePeriod().TimePeriodID;
+            }
+            catch (Exception e){
+                System.out.println();
+            }
             for (var l : professorSchedule) {
                 if(l.getTimePeriod().getTimePeriodID() - lastTime >= 3)
                     fitness -= 15;
